@@ -1,4 +1,4 @@
-🚗 Car Service Management System
+```🚗 Car Service Management System
 A modern web application for managing a car repair workshop.
 It provides tools for handling cars, work orders, parts inventory, and user accounts — all with a clean, responsive UI.
 
@@ -84,3 +84,4 @@ Run the Flask app
 Log in as manager
 
 Start managing your workshop
+```
