@@ -54,8 +54,16 @@
         <td>{{ car.model }}</td>
         <td>{{ car.year }}</td>
         <td>{{ car.owner_name }}</td>
+        {% if current_user.role == 'manager' %}
+          <td>
+            <form method="post" action="{{ url_for('cars.delete_car', car_id=car.id) }}" onsubmit="return confirm('Наистина ли искате да изтриете този автомобил?');">
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </td>
+        {% endif %}
       </tr>
     {% endfor %}
-</tbody> </table> </div> </div>
+  </tbody>
+</table> </div> </div>
 {% endblock %}
 

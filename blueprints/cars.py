@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 
-from models import db, Car, Role, WorkOrder, User
+from models import db, Car, Role, WorkOrder, User, WorkOrderPart
 
 cars_bp = Blueprint("cars", __name__, url_prefix="/cars")
 
@@ -44,3 +44,31 @@ def car_details(car_id):
         orders=orders,
         mechanics=mechanics
     )
+
+
+@cars_bp.route("/delete/<int:car_id>", methods=["POST"])
+@login_required
+def delete_car(car_id):
+    if current_user.role != Role.MANAGER:
+        flash("Само мениджъри могат да изтриват автомобили.", "danger")
+        return redirect(url_for("cars.list_cars"))
+
+    car = Car.query.get_or_404(car_id)
+
+    # A car is deletable only if all related work orders are completed (or there are none)
+    active_orders = WorkOrder.query.filter(WorkOrder.car_id == car.id, WorkOrder.status != 'completed').first()
+    if active_orders:
+        flash("Не може да изтриете този автомобил: има активни работни поръчки.", "danger")
+        return redirect(url_for("cars.car_details", car_id=car.id))
+
+    # Delete related completed work orders and their used-parts entries to avoid FK integrity errors
+    completed_orders = WorkOrder.query.filter_by(car_id=car.id).all()
+    for order in completed_orders:
+        # delete WorkOrderPart entries for this order
+        WorkOrderPart.query.filter_by(work_order_id=order.id).delete()
+        db.session.delete(order)
+
+    db.session.delete(car)
+    db.session.commit()
+    flash("Автомобилът е изтрит.", "success")
+    return redirect(url_for("cars.list_cars"))

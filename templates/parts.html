@@ -56,10 +56,17 @@
             <td>{{ part.name }}</td>
             <td>{{ part.quantity }}</td>
             <td>{{ "%.2f"|format(part.unit_price) }}</td>
+            {% if current_user.role == 'manager' %}
+              <td>
+                <form method="post" action="{{ url_for('parts.delete_part', part_id=part.id) }}" onsubmit="return confirm('Наистина ли искате да изтриете тази част?');">
+                  <button class="btn btn-sm btn-danger">Delete</button>
+                </form>
+              </td>
+            {% endif %}
           </tr>
         {% else %}
           <tr>
-            <td colspan="5" class="text-center">Няма намерени части.</td>
+            <td colspan="6" class="text-center">Няма намерени части.</td>
           </tr>
         {% endfor %}
       </tbody>

@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 
 from models import db, Part, Role
 from sqlalchemy.exc import IntegrityError
+from models import WorkOrderPart
 
 parts_bp = Blueprint("parts", __name__, url_prefix="/parts")
 
@@ -49,3 +50,24 @@ def list_parts():
 
     parts = Part.query.order_by(Part.id.desc()).all()
     return render_template("parts.html", parts=parts)
+
+
+@parts_bp.route("/delete/<int:part_id>", methods=["POST"])
+@login_required
+def delete_part(part_id):
+    if current_user.role != Role.MANAGER:
+        flash("Само мениджъри могат да изтриват части.", "danger")
+        return redirect(url_for("parts.list_parts"))
+
+    part = Part.query.get_or_404(part_id)
+
+    # Prevent deletion if part was used in any work order
+    used = WorkOrderPart.query.filter_by(part_id=part.id).first()
+    if used:
+        flash("Не може да изтриете частта — вече е използвана в работни поръчки.", "danger")
+        return redirect(url_for("parts.list_parts"))
+
+    db.session.delete(part)
+    db.session.commit()
+    flash("Частта е изтрита.", "success")
+    return redirect(url_for("parts.list_parts"))
