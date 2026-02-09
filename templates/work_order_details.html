@@ -42,6 +42,23 @@
   </div>
 </div>
 
+<!-- IMAGES -->
+{% if order.images %}
+<div class="card mb-4">
+  <div class="card-header bg-dark text-white">Снимки</div>
+  <div class="card-body">
+    <div class="grid-cards">
+      {% for img in order.images %}
+        <div class="card">
+          <img src="{{ url_for('static', filename=img.filename) }}" class="card-img-top" style="height:160px;object-fit:cover;">
+          <div class="card-body small muted">Uploaded</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <!-- CLIENT INFO -->
 <div class="card mb-4">
   <div class="card-header bg-dark text-white">Информация за клиента</div>

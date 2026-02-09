@@ -1,5 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Табло на механика</h2>
-<p>Проверявайте възложените ви работни поръчки и обновявайте техния статус.</p>
+<div class="hero-inner">
+	<h2 class="fw-bold">Табло на механика</h2>
+	<p class="lead text-muted">Проверявайте възложените ви работни поръчки и обновявайте техния статус.</p>
+	{% if current_user.is_authenticated %}
+		<div class="current-role">Вие сте: {{ current_user.role.capitalize() }}</div>
+	{% endif %}
+
+	<div class="role-cards">
+		<div class="role-card">
+			<h5>Възложени поръчки</h5>
+			<p>Преглеждайте и обработвайте задачите, които са ви назначени или са свободни за вземане.</p>
+		</div>
+
+		<div class="role-card">
+			<h5>Маркиране на части</h5>
+			<p>Добавяйте използвани части и бележки към завършените поръчки.</p>
+		</div>
+	</div>
+</div>
 {% endblock %}

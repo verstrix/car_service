@@ -1,8 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from sqlalchemy import or_
+import os
+from werkzeug.utils import secure_filename
 
-from models import db, WorkOrder, WorkOrderPart, Car, Part, User, Role
+from models import db, WorkOrder, WorkOrderPart, Car, Part, User, Role, WorkOrderImage
 
 work_bp = Blueprint("work_orders", __name__, url_prefix="/work-orders")
 
@@ -45,6 +47,39 @@ def list_work_orders():
             )
             db.session.add(car)
             db.session.commit()
+
+        # create the work order
+        order = WorkOrder(
+            car_id=car.id,
+            client_id=current_user.id,
+            description=description,
+            status='open'
+        )
+        db.session.add(order)
+        db.session.commit()
+
+        # Handle uploaded images (field name: images)
+        upload_folder = os.path.join(os.path.dirname(__file__), '..', 'static', 'uploads', 'orders')
+        # resolve to absolute
+        upload_folder = os.path.abspath(upload_folder)
+        order_folder = os.path.join(upload_folder, str(order.id))
+        os.makedirs(order_folder, exist_ok=True)
+
+        files = request.files.getlist('images') if 'images' in request.files else []
+        for f in files:
+            if f and f.filename:
+                filename = secure_filename(f.filename)
+                save_path = os.path.join(order_folder, filename)
+                f.save(save_path)
+                # store relative path from static/
+                rel_path = os.path.join('uploads', 'orders', str(order.id), filename).replace('\\','/')
+                img = WorkOrderImage(work_order_id=order.id, filename=rel_path)
+                db.session.add(img)
+
+                # if car has no image, set the car image to this one
+                if not car.image_filename:
+                    car.image_filename = rel_path
+        db.session.commit()
 
 
         flash("Работната поръчка е създадена успешно.", "success")

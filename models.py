@@ -25,6 +25,7 @@ class Car(db.Model):
     year = db.Column(db.Integer)
     owner_name = db.Column(db.String(120))
     owner_phone = db.Column(db.String(50))
+    image_filename = db.Column(db.String(255))
 
 class Part(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -45,6 +46,7 @@ class WorkOrder(db.Model):
     car = db.relationship("Car", backref="work_orders")
     client = db.relationship("User", foreign_keys=[client_id])
     mechanic = db.relationship("User", foreign_keys=[mechanic_id])
+    images = db.relationship("WorkOrderImage", backref="work_order", cascade="all, delete-orphan")
 
 class WorkOrderPart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -54,3 +56,13 @@ class WorkOrderPart(db.Model):
 
     work_order = db.relationship("WorkOrder", backref="parts_used")
     part = db.relationship("Part")
+
+
+class WorkOrderImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    work_order_id = db.Column(db.Integer, db.ForeignKey("work_order.id"), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+
+    def url(self):
+        # returns the relative url under /static/
+        return f"/static/{self.filename}"

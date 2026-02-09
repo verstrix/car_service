@@ -12,7 +12,7 @@
 {% if current_user.role == 'manager' %}
 <div class="collapse mb-3" id="addCarForm">
   <div class="card card-body">
-    <form method="post">
+  <form method="post" enctype="multipart/form-data">
       <div class="row g-2">
         <div class="col-md-4">
           <input class="form-control" name="vin" placeholder="VIN" required>
@@ -32,6 +32,10 @@
         <div class="col-md-3 mt-2">
           <input class="form-control" name="owner_phone" placeholder="Owner phone">
         </div>
+        <div class="col-md-4 mt-2">
+          <label class="form-label">Фото на автомобила (по избор)</label>
+          <input class="form-control" type="file" name="image" accept="image/*">
+        </div>
       </div>
       <button class="btn btn-success mt-3" type="submit">Save</button>
     </form>
@@ -39,31 +43,29 @@
 </div>
 {% endif %}
 
-<div class="card"> <div class="card-body p-0"> <table class="table table-hover table-striped mb-0"> <thead class="table-dark"> <tr> <th>ID</th> <th>VIN</th> <th>Марка</th> <th>Модел</th> <th>Година</th> <th>Собственик</th> </tr> </thead>
-  <tbody>
-    {% for car in cars %}
-      <tr>
-        <td>{{ car.id }}</td>
-        <td>{{ car.vin }}</td>
-      <td>
-  <a href="{{ url_for('cars.car_details', car_id=car.id) }}">
-    {{ car.make }} {{ car.model }}
-  </a>
-</td>
-
-        <td>{{ car.model }}</td>
-        <td>{{ car.year }}</td>
-        <td>{{ car.owner_name }}</td>
-        {% if current_user.role == 'manager' %}
-          <td>
+<div class="grid-cards">
+  {% for car in cars %}
+    <div class="card">
+      {% if car.image_filename %}
+        <img src="{{ url_for('static', filename=car.image_filename) }}" class="card-img-top" style="height:160px;object-fit:cover;">
+      {% else %}
+        <div style="height:160px;background:linear-gradient(90deg,#f1f5f9,#ffffff);display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:600">No image</div>
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-title"><a href="{{ url_for('cars.car_details', car_id=car.id) }}">{{ car.make }} {{ car.model }}</a></h5>
+        <p class="small muted mb-1">VIN: {{ car.vin }}</p>
+        <p class="small muted mb-2">{{ car.year }} — {{ car.owner_name }}</p>
+        <div class="d-flex gap-2">
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('cars.car_details', car_id=car.id) }}">View</a>
+          {% if current_user.role == 'manager' %}
             <form method="post" action="{{ url_for('cars.delete_car', car_id=car.id) }}" onsubmit="return confirm('Наистина ли искате да изтриете този автомобил?');">
               <button class="btn btn-sm btn-danger">Delete</button>
             </form>
-          </td>
-        {% endif %}
-      </tr>
-    {% endfor %}
-  </tbody>
-</table> </div> </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
 {% endblock %}
 

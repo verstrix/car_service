@@ -53,7 +53,9 @@
           <tr>
             <td>{{ part.id }}</td>
             <td>{{ part.part_number }}</td>
-            <td>{{ part.name }}</td>
+            <td>
+              <a href="{{ url_for('parts.part_details', part_id=part.id) }}">{{ part.name }}</a>
+            </td>
             <td>{{ part.quantity }}</td>
             <td>{{ "%.2f"|format(part.unit_price) }}</td>
             {% if current_user.role == 'manager' %}

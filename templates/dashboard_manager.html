@@ -1,5 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Табло на мениджъра</h2>
-<p>Оттук можете да управлявате автомобили, инвентар и работни поръчки.</p>
+<div class="hero-inner">
+	<h2 class="fw-bold">Табло на мениджъра</h2>
+	<p class="lead text-muted">Оттук можете да управлявате автомобили, инвентар и работни поръчки.</p>
+	{% if current_user.is_authenticated %}
+		<div class="current-role">Вие сте: {{ current_user.role.capitalize() }}</div>
+	{% endif %}
+
+	<div class="role-cards">
+		<div class="role-card">
+			<h5>Потребителско управление</h5>
+			<p>Добавяйте и управлявайте потребители и роли чрез менюто "Потребители".</p>
+		</div>
+
+		<div class="role-card">
+			<h5>Инвентар</h5>
+			<p>Следете наличностите и добавяйте нови части в раздела "Части".</p>
+		</div>
+	</div>
+</div>
 {% endblock %}

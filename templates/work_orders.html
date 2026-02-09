@@ -9,7 +9,7 @@
   <div class="card-body">
     <h5 class="mb-3">Създай работна поръчка</h5>
 
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
       <div class="row g-3">
 
         <div class="col-md-4">
@@ -35,6 +35,11 @@
         <div class="col-md-12 mt-2">
           <label class="form-label">Опишете проблема</label>
           <textarea class="form-control" name="description" required></textarea>
+        </div>
+
+        <div class="col-md-12 mt-2">
+          <label class="form-label">Снимки (по избор)</label>
+          <input class="form-control" type="file" name="images" multiple accept="image/*">
         </div>
 
       </div>

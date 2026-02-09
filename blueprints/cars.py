@@ -1,4 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
+import os
+from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user
 
 from models import db, Car, Role, WorkOrder, User, WorkOrderPart
@@ -9,6 +11,54 @@ cars_bp = Blueprint("cars", __name__, url_prefix="/cars")
 @cars_bp.route("/", methods=["GET", "POST"])
 @login_required
 def list_cars():
+    # HANDLE CREATE CAR (MANAGER)
+    if request.method == 'POST':
+        if current_user.role != Role.MANAGER:
+            flash("Само мениджъри могат да добавят автомобили.", "danger")
+            return redirect(url_for('cars.list_cars'))
+
+        vin = (request.form.get('vin') or '').strip()
+        make = (request.form.get('make') or '').strip()
+        model = (request.form.get('model') or '').strip()
+        year = request.form.get('year')
+        owner_name = (request.form.get('owner_name') or '').strip()
+        owner_phone = (request.form.get('owner_phone') or '').strip()
+
+        if not vin:
+            flash('VIN е задължителен.', 'danger')
+            return redirect(url_for('cars.list_cars'))
+
+        existing = Car.query.filter_by(vin=vin).first()
+        if existing:
+            flash('Автомобил с този VIN вече съществува.', 'warning')
+            return redirect(url_for('cars.list_cars'))
+
+        car = Car(
+            vin=vin,
+            make=make,
+            model=model,
+            year=int(year) if year else None,
+            owner_name=owner_name or current_user.username,
+            owner_phone=owner_phone or 'N/A'
+        )
+        db.session.add(car)
+        db.session.commit()
+
+        # handle optional image upload (field name: image)
+        if 'image' in request.files:
+            f = request.files.get('image')
+            if f and f.filename:
+                filename = secure_filename(f.filename)
+                upload_folder = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')), 'static', 'uploads', 'cars', str(car.id))
+                os.makedirs(upload_folder, exist_ok=True)
+                save_path = os.path.join(upload_folder, filename)
+                f.save(save_path)
+                rel = os.path.join('uploads', 'cars', str(car.id), filename).replace('\\','/')
+                car.image_filename = rel
+                db.session.commit()
+
+        flash('Автомобилът е добавен.', 'success')
+        return redirect(url_for('cars.list_cars'))
 
     # MANAGER: sees all cars
     if current_user.role == Role.MANAGER:

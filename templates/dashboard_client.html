@@ -1,5 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Табло на клиента</h2>
-<p>Създавайте нови работни поръчки за вашите автомобили и следете статуса им.</p>
+<div class="hero-inner">
+	<h2 class="fw-bold">Табло на клиента</h2>
+	<p class="lead text-muted">Създавайте нови работни поръчки за вашите автомобили и следете статуса им.</p>
+	{% if current_user.is_authenticated %}
+		<div class="current-role">Вие сте: {{ current_user.role.capitalize() }}</div>
+	{% endif %}
+
+	<div class="role-cards">
+		<div class="role-card">
+			<h5>Как да започнете</h5>
+			<p>Добавете автомобил или създайте работна поръчка чрез менюто "Работни поръчки".</p>
+		</div>
+
+		<div class="role-card">
+			<h5>История</h5>
+			<p>Виждате историята на обслужванията за вашите автомобили в детайлите на всеки автомобил.</p>
+		</div>
+	</div>
+</div>
 {% endblock %}

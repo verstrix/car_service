@@ -1,0 +1,81 @@
+:root{
+  --accent: #0d9488;
+  --accent-dark: #0f766e;
+  --muted: #6b7280;
+  --bg: #f7f9fb;
+  --card-radius: 12px;
+}
+
+/* Global */
+html,body{height:100%;}
+body{background:var(--bg);font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:#111;margin:0}
+
+.container{max-width:1200px}
+
+/* Header brand */
+.navbar-brand{display:flex;align-items:center;gap:.5rem}
+
+/* Cards */
+.card{border:1px solid rgba(15,23,42,0.04);border-radius:var(--card-radius);overflow:hidden}
+.card .card-body{padding:1.25rem}
+
+/* Buttons */
+.btn-primary{background:var(--accent);border-color:var(--accent);box-shadow:0 6px 18px rgba(13,148,136,0.08)}
+.btn-primary:active,.btn-primary:focus{background:var(--accent-dark);border-color:var(--accent-dark)}
+
+/* Utilities */
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+
+/* Tables */
+table thead th{background:transparent;border-bottom:1px solid rgba(15,23,42,0.04)}
+
+/* Forms */
+.form-control,.form-select{border-radius:10px}
+
+/* Slightly larger clickable rows */
+tbody tr{transition:background .12s ease, transform .06s ease}
+tbody tr:hover{background:#fff;transform:translateY(-2px)}
+
+/* Cards grid */
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+
+/* Footer spacing */
+footer{padding:2rem 0;color:var(--muted);text-align:center}
+
+/* Small responsive tweaks */
+@media (max-width:576px){
+  .navbar-brand{font-size:1rem}
+}
+
+/* Toast/alert small style */
+.alert{border-radius:10px}
+
+/* Accent link */
+a.accent{color:var(--accent);font-weight:600}
+
+/* Landing hero */
+.hero-landing{
+  position:relative;
+  background-image: linear-gradient(rgba(7,16,15,0.36), rgba(7,16,15,0.36)), url('/static/images/hero.svg');
+  background-size:cover;
+  background-position:center;
+  min-height:72vh;
+  display:flex;
+  align-items:center;
+  color: #fff;
+}
+.hero-inner{max-width:980px;margin:0 auto;padding:3rem 1rem;text-align:center}
+.hero-inner h1{color:var(--accent);color:#e6fff9}
+.hero-inner .lead{color:rgba(255,255,255,0.92)}
+.hero-credit{position:absolute;right:16px;bottom:12px;color:rgba(255,255,255,0.85);font-size:.9rem}
+
+/* Role cards under hero */
+.role-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:2rem}
+.role-card{background:#ffffff;border-radius:12px;padding:1rem;text-align:left;color:#0b1720;box-shadow:0 8px 24px rgba(2,6,23,0.06);transition:transform .12s ease}
+.role-card h5{margin:0 0 .5rem 0;color:var(--accent-dark)}
+.role-card p{margin:0;color:#334155}
+.role-card:hover{transform:translateY(-6px)}
+
+.current-role{margin-top:1.25rem;padding:.6rem 1rem;border-radius:10px;background:rgba(255,255,255,0.95);display:inline-block;color:#0b1720;font-weight:600}
+

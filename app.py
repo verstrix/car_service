@@ -11,6 +11,7 @@ from blueprints.auth import auth_bp
 
 # Load config class
 from config import Config
+from sqlalchemy import inspect, text
 
 app = Flask(__name__)
 app.config.from_object(Config)   # <-- FIXED: loads SQLALCHEMY_DATABASE_URI correctly
@@ -71,5 +72,18 @@ app.register_blueprint(auth_bp)
 
 if __name__ == "__main__":
     with app.app_context():
+        # Ensure all tables for new models exist
         db.create_all()
+
+        # Add `image_filename` column to `car` table if missing (safe sqlite ALTER)
+        try:
+            inspector = inspect(db.engine)
+            cols = [c['name'] for c in inspector.get_columns('car')]
+            if 'image_filename' not in cols:
+                with db.engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE car ADD COLUMN image_filename VARCHAR(255)"))
+                    conn.commit()
+        except Exception:
+            # If anything goes wrong here we don't want to crash startup; show minimal feedback
+            pass
     app.run(debug=True)
