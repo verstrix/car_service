@@ -6,6 +6,16 @@
   --card-radius: 12px;
 }
 
+/* Dark theme variables (applied by `.dark` on <html> or <body>) */
+:root.dark{
+  --accent: #2dd4bf;
+  --accent-dark: #14b8a6;
+  --muted: #9ca3af;
+  --bg: #0b1220;
+  --card-bg: #071020;
+  --surface: #071824;
+}
+
 /* Global */
 html,body{height:100%;}
 body{background:var(--bg);font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:#111;margin:0}
@@ -18,6 +28,10 @@ body{background:var(--bg);font-family:Inter, system-ui, -apple-system, "Segoe UI
 /* Cards */
 .card{border:1px solid rgba(15,23,42,0.04);border-radius:var(--card-radius);overflow:hidden}
 .card .card-body{padding:1.25rem}
+
+/* Animated entrance for cards and table rows */
+.fade-in-up{opacity:0;transform:translateY(8px);transition:opacity .36s ease, transform .36s ease}
+.fade-in-up.show{opacity:1;transform:none}
 
 /* Buttons */
 .btn-primary{background:var(--accent);border-color:var(--accent);box-shadow:0 6px 18px rgba(13,148,136,0.08)}
@@ -36,6 +50,26 @@ table thead th{background:transparent;border-bottom:1px solid rgba(15,23,42,0.04
 /* Slightly larger clickable rows */
 tbody tr{transition:background .12s ease, transform .06s ease}
 tbody tr:hover{background:#fff;transform:translateY(-2px)}
+
+/* Floating action button */
+#fabAdd{transition:transform .12s cubic-bezier(.2,.9,.2,1), box-shadow .12s ease}
+#fabAdd:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(13,148,136,0.18)}
+
+/* Dark adjustments */
+body.dark, html.dark{background:var(--bg);color:#e6eef0}
+body.dark .card{background:var(--card-bg);border-color:rgba(255,255,255,0.04);box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+body.dark .navbar{background:var(--surface) !important;border-bottom-color:rgba(255,255,255,0.03)}
+body.dark .nav-link{color:var(--muted) !important}
+body.dark .nav-link.active, body.dark .nav-link:hover{color:var(--accent) !important}
+body.dark .btn-primary{background:var(--accent);border-color:var(--accent)}
+
+/* Global transitions */
+*{transition:color .12s ease, background-color .12s ease, border-color .12s ease}
+
+/* Small responsive tweak for FAB on small devices */
+@media (max-width:576px){
+  #fabAdd{right:12px;bottom:16px;width:52px;height:52px}
+}
 
 /* Cards grid */
 .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
