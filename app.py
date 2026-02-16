@@ -4,7 +4,7 @@ from models import db, User, Role
 
 # Blueprints
 from blueprints.cars import cars_bp
-from blueprints.parts import parts_bp
+from blueprints.parts import parts_bp, create_default_parts
 from blueprints.work_orders import work_bp
 from blueprints.users import users_bp
 from blueprints.auth import auth_bp, create_default_users
@@ -94,5 +94,21 @@ if __name__ == "__main__":
                     conn.commit()
         except Exception:
             # If anything goes wrong here we don't want to crash startup; show minimal feedback
+            pass
+        # Add `image_filename` column to `part` table if missing
+        try:
+            inspector = inspect(db.engine)
+            cols = [c['name'] for c in inspector.get_columns('part')]
+            if 'image_filename' not in cols:
+                with db.engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE part ADD COLUMN image_filename VARCHAR(255)"))
+                    conn.commit()
+        except Exception:
+            pass
+
+        # Create default parts if missing
+        try:
+            create_default_parts()
+        except Exception:
             pass
     app.run(debug=app.config.get("DEBUG", False))

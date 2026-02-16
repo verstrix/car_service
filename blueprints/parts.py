@@ -1,9 +1,30 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
+import os
+from werkzeug.utils import secure_filename
 
 from models import db, Part, Role
 from sqlalchemy.exc import IntegrityError
 from models import WorkOrderPart
+
+# parts_bp already defined above
+
+def create_default_parts():
+    defaults = [
+        ("SPARK-PLUG-001", "Spark Plug", "Standard spark plug for many models", "images/parts/spark_plug.svg"),
+        ("CABLE-SET-001", "Ignition Cables", "Set of ignition cables", "images/parts/cable_set.svg"),
+        ("ALT-001", "Alternator", "12V alternator unit", "images/parts/alternator.svg"),
+        ("BRAKE-PAD-001", "Brake Pad", "Front brake pad", "images/parts/brake_pad.svg"),
+        ("OIL-FILTER-001", "Oil Filter", "Standard oil filter", "images/parts/oil_filter.svg"),
+    ]
+    for pn, name, desc, img in defaults:
+        if not Part.query.filter_by(part_number=pn).first():
+            p = Part(part_number=pn, name=name, description=desc, quantity=10, unit_price=9.99, image_filename=img)
+            db.session.add(p)
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
 
 parts_bp = Blueprint("parts", __name__, url_prefix="/parts")
 
@@ -45,6 +66,29 @@ def list_parts():
             db.session.rollback()
             flash("Част с този номер вече съществува.", "danger")
             return redirect(url_for("parts.list_parts"))
+
+        # handle optional image upload
+        if 'image' in request.files:
+            f = request.files.get('image')
+            if f and f.filename:
+                filename = secure_filename(f.filename)
+                if '.' in filename:
+                    ext = filename.rsplit('.', 1)[1].lower()
+                else:
+                    ext = ''
+                allowed = current_app.config.get('ALLOWED_IMAGE_EXTENSIONS', set())
+                if ext and ext in allowed:
+                    upload_root = current_app.config.get('UPLOAD_FOLDER')
+                    upload_folder = os.path.join(upload_root, 'parts', str(part.id))
+                    os.makedirs(upload_folder, exist_ok=True)
+                    save_path = os.path.join(upload_folder, filename)
+                    f.save(save_path)
+                    rel = os.path.join('uploads', 'parts', str(part.id), filename).replace('\\','/')
+                    part.image_filename = rel
+                    db.session.commit()
+                else:
+                    flash('Неподдържан тип файл за изображение.', 'danger')
+
         flash("Частта е добавена.", "success")
         return redirect(url_for("parts.list_parts"))
 

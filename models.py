@@ -33,6 +33,7 @@ class Part(db.Model):
     part_number = db.Column(db.String(80), unique=True, nullable=False)
     name = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text)
+    image_filename = db.Column(db.String(255))
     quantity = db.Column(db.Integer, default=0)
     unit_price = db.Column(db.Float, default=0.0)
 
