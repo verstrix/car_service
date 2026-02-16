@@ -7,7 +7,7 @@ from blueprints.cars import cars_bp
 from blueprints.parts import parts_bp
 from blueprints.work_orders import work_bp
 from blueprints.users import users_bp
-from blueprints.auth import auth_bp
+from blueprints.auth import auth_bp, create_default_users
 
 # Load config class
 from config import Config
@@ -28,6 +28,8 @@ def inject_role():
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 login_manager.init_app(app)
+
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -75,6 +77,13 @@ if __name__ == "__main__":
         # Ensure all tables for new models exist
         db.create_all()
 
+        # Create default users (if missing)
+        try:
+            create_default_users()
+        except Exception:
+            # don't fail startup if default user creation has issues
+            pass
+
         # Add `image_filename` column to `car` table if missing (safe sqlite ALTER)
         try:
             inspector = inspect(db.engine)
@@ -86,4 +95,4 @@ if __name__ == "__main__":
         except Exception:
             # If anything goes wrong here we don't want to crash startup; show minimal feedback
             pass
-    app.run(debug=True)
+    app.run(debug=app.config.get("DEBUG", False))

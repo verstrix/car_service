@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
 from sqlalchemy import or_
 import os
@@ -59,26 +59,32 @@ def list_work_orders():
         db.session.commit()
 
         # Handle uploaded images (field name: images)
-        upload_folder = os.path.join(os.path.dirname(__file__), '..', 'static', 'uploads', 'orders')
-        # resolve to absolute
-        upload_folder = os.path.abspath(upload_folder)
-        order_folder = os.path.join(upload_folder, str(order.id))
+        upload_root = current_app.config.get('UPLOAD_FOLDER')
+        order_folder = os.path.join(upload_root, 'orders', str(order.id))
         os.makedirs(order_folder, exist_ok=True)
 
         files = request.files.getlist('images') if 'images' in request.files else []
+        allowed = current_app.config.get('ALLOWED_IMAGE_EXTENSIONS', set())
         for f in files:
             if f and f.filename:
                 filename = secure_filename(f.filename)
-                save_path = os.path.join(order_folder, filename)
-                f.save(save_path)
-                # store relative path from static/
-                rel_path = os.path.join('uploads', 'orders', str(order.id), filename).replace('\\','/')
-                img = WorkOrderImage(work_order_id=order.id, filename=rel_path)
-                db.session.add(img)
+                if '.' in filename:
+                    ext = filename.rsplit('.', 1)[1].lower()
+                else:
+                    ext = ''
+                if ext and ext in allowed:
+                    save_path = os.path.join(order_folder, filename)
+                    f.save(save_path)
+                    # store relative path from static/
+                    rel_path = os.path.join('uploads', 'orders', str(order.id), filename).replace('\\','/')
+                    img = WorkOrderImage(work_order_id=order.id, filename=rel_path)
+                    db.session.add(img)
 
-                # if car has no image, set the car image to this one
-                if not car.image_filename:
-                    car.image_filename = rel_path
+                    # if car has no image, set the car image to this one
+                    if not car.image_filename:
+                        car.image_filename = rel_path
+                else:
+                    flash('Неподдържан тип файл за изображение — пропуснат файл.', 'warning')
         db.session.commit()
 
 

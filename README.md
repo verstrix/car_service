@@ -1,68 +1,48 @@
-```🚗 Car Service Management System
-A modern web application for managing a car repair workshop.
-It provides tools for handling cars, work orders, parts inventory, and user accounts — all with a clean, responsive UI.
+# Car Service Management System
 
-🔧 Features
-👤 Role-Based Access
-Manager — full control (users, cars, parts, work orders)
-Mechanic — manage assigned work orders
-Client — view their cars and service history
+Web application for managing a car repair workshop: cars, work orders, parts inventory and users.
 
-🚘 Car Management
-Add, edit, and view cars
-Link cars to clients
-View service history
+## Features
 
-🧰 Work Orders
-Create and track work orders
-Assign mechanics
-Add parts used
-Track status (pending, in progress, completed)
+- Role-based access (Manager / Mechanic / Client)
+- Cars management with optional uploads
+- Work orders, assignment and parts usage
+- Inventory for parts with basic integrity checks
 
-📦 Parts Inventory
-Add and manage parts
-Track stock levels
-Use parts in work orders
+## Tech stack
 
-👥 User Management
-Create users with roles
-View all existing users
-Secure authentication with Flask‑Login
+- Python 3, Flask, SQLAlchemy, Flask-Login, SQLite
 
-🎨 Modern UI
-Clean, minimal design
-Teal accent theme
-Responsive layout using Bootstrap 5
+## Quick start
 
-🛠️ Tech Stack
-Python 3
-Flask (Blueprints, Jinja2, Flask‑Login)
-SQLAlchemy
-SQLite
-Bootstrap 5
-HTML / CSS / Jinja Templates
+1. Create a virtual environment and install dependencies:
 
-📂 Project Structure
-Code
-car_service/
-│ app.py
-│ config.py
-│ models.py
-│
-├── blueprints/
-│   ├── cars/
-│   ├── parts/
-│   ├── users/
-│   └── work_orders/
-│
-├── templates/
-├── static/
-└── app.db
-
-🚀 Getting Started
-
-Install dependencies
-Run the Flask app
-Log in as manager
-Start managing your workshop
+```powershell
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
 ```
+
+2. (Optional) Set environment variables for production:
+
+```powershell
+setx SECRET_KEY "a-strong-secret"
+setx FLASK_DEBUG 0
+```
+
+3. Run the app:
+
+```powershell
+python app.py
+```
+
+4. Open http://127.0.0.1:5000 and log in with the default manager account `admin` / `admin123` (created automatically on first run).
+
+## Notes & improvements made
+
+- Config now reads `SECRET_KEY`, `DATABASE_URL` and `FLASK_DEBUG` from environment variables.
+- Default manager account is created at startup if missing.
+- Removed duplicate `LoginManager` from `blueprints/auth.py` (app-level manager used instead).
+- Work order image URLs built using `url_for('static', ...)`.
+
+If you'd like, I can run the app locally, add tests, or harden authentication (CSRF, password rules).

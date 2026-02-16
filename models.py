@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from flask import url_for
 
 db = SQLAlchemy()
 
@@ -64,5 +65,5 @@ class WorkOrderImage(db.Model):
     filename = db.Column(db.String(255), nullable=False)
 
     def url(self):
-        # returns the relative url under /static/
-        return f"/static/{self.filename}"
+        # returns a url for the static file (requires app context)
+        return url_for('static', filename=self.filename)

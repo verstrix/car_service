@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 import os
 from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user
@@ -49,13 +49,23 @@ def list_cars():
             f = request.files.get('image')
             if f and f.filename:
                 filename = secure_filename(f.filename)
-                upload_folder = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')), 'static', 'uploads', 'cars', str(car.id))
-                os.makedirs(upload_folder, exist_ok=True)
-                save_path = os.path.join(upload_folder, filename)
-                f.save(save_path)
-                rel = os.path.join('uploads', 'cars', str(car.id), filename).replace('\\','/')
-                car.image_filename = rel
-                db.session.commit()
+                # validate extension
+                if '.' in filename:
+                    ext = filename.rsplit('.', 1)[1].lower()
+                else:
+                    ext = ''
+                allowed = current_app.config.get('ALLOWED_IMAGE_EXTENSIONS', set())
+                if ext and ext in allowed:
+                    upload_root = current_app.config.get('UPLOAD_FOLDER')
+                    upload_folder = os.path.join(upload_root, 'cars', str(car.id))
+                    os.makedirs(upload_folder, exist_ok=True)
+                    save_path = os.path.join(upload_folder, filename)
+                    f.save(save_path)
+                    rel = os.path.join('uploads', 'cars', str(car.id), filename).replace('\\','/')
+                    car.image_filename = rel
+                    db.session.commit()
+                else:
+                    flash('Неподдържан тип файл за изображение.', 'danger')
 
         flash('Автомобилът е добавен.', 'success')
         return redirect(url_for('cars.list_cars'))
